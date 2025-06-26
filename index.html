@@ -19,48 +19,70 @@
 		left: -150px;
 		width: 120px;
 		animation: berenang 10s infinite linear;
-		transform: scaleX(1); /* posisi awal */
+		transform: scaleX(1);
+		transition: left 0.4s ease, top 0.4s ease; /* smooth movement */
 	}
 
 	@keyframes berenang {
-	0%   { left: -150px; transform: scaleX(1); }
-	50%  { left: 80%; transform: scaleX(-1); }  /* flip saat di kanan */
-	100% { left: -150px; transform: scaleX(1); }
+		0%   { left: -150px; transform: scaleX(1); }
+		50%  { left: 80%; transform: scaleX(-1); }
+		100% { left: -150px; transform: scaleX(1); }
 	}
 
 	#kue {
 		display: none;
 		text-align: center;
-		margin-top: 160px; /* posisi lebih bawah */
+		margin-top: 160px;
 	}
 
 	.message {
-		margin-top: -40px; /* geser ke atas */
-}
+		margin-top: -40px;
+	}
 
-</style>
+	.balloons {
+		transition: left 0.3s ease, top 0.3s ease;
+		z-index: 10;
+	}
 
+	#pesan-gerak {
+		display: none;
+		position: fixed;
+		bottom: 20px;
+		left: 50%;
+		transform: translateX(-50%);
+		background: rgba(0, 0, 0, 0.75);
+		color: #fff;
+		padding: 12px 24px;
+		border-radius: 16px;
+		font-size: 16px;
+		font-family: 'Signika', sans-serif;
+		z-index: 9999;
+	}
+	</style>
 </head>
 
 <body>
 	<div class="loading"></div>
 
 	<audio class="song" controls loop>
-        <source src="hbd.mp3">
-        Your browser isn't invited for super fun audio time.
-    </audio>
+		<source src="hbd.mp3">
+		Your browser isn't invited for super fun audio time.
+	</audio>
 
 	<!-- Balon huruf -->
-    <div class="balloons text-center" id="b1"><h2 style="color:#F2B300;">H</h2></div>
-    <div class="balloons text-center" id="b2"><h2 style="color:#0719D4;">A</h2></div>
+	<div class="balloons text-center" id="b1"><h2 style="color:#F2B300;">H</h2></div>
+	<div class="balloons text-center" id="b2"><h2 style="color:#0719D4;">A</h2></div>
 	<div class="balloons text-center" id="b3"><h2 style="color:#D14D39;">U</h2></div>
 	<div class="balloons text-center" id="b4"><h2 style="color:#8FAD00;">R</h2></div>
 	<div class="balloons text-center" id="b5"><h2 style="color:#8377E4;">A</h2></div>
-    <div class="balloons text-center" id="b6"><h2 style="color:#99C96A;">2</h2></div>
-    <div class="balloons text-center" id="b7"><h2 style="color:#20CFB4;">0</h2></div>
+	<div class="balloons text-center" id="b6"><h2 style="color:#99C96A;">2</h2></div>
+	<div class="balloons text-center" id="b7"><h2 style="color:#20CFB4;">0</h2></div>
 
 	<img src="Balloon-Border.png" width="100%" class="balloon-border">
 	<img src="ikan.png" id="ikan" alt="Ikan Cupang Lucu">
+
+	<!-- Pesan teks tambahan -->
+	<div id="pesan-gerak">Balon dan ikannya ga bisaa di tangkep looo 😝 coba gerakkan ke ikan dan balonnya.....</div>
 
 	<div class="container">
 		<!-- Lampu -->
@@ -128,15 +150,89 @@
 	<script src="effect.js"></script>
 
 	<script>
-		// Tampilkan ikan saat balon ditekan
-		document.getElementById("balloons_flying").addEventListener("click", function () {
-			document.getElementById("ikan").style.display = "block";
-		});
+const ikan = document.getElementById("ikan");
+const kue = document.getElementById("kue");
 
-		// Tampilkan kue saat tombol ditekan
-		document.getElementById("cake_fadein").addEventListener("click", function () {
-			document.getElementById("kue").style.display = "block";
-		});
-	</script>
+document.getElementById("balloons_flying").addEventListener("click", function () {
+	ikan.style.display = "block";
+	ikan.style.left = `${window.innerWidth / 2}px`;
+	ikan.style.top = `${window.innerHeight - 100}px`;
+
+	document.querySelectorAll('.balloons').forEach(b => {
+		b.style.position = 'absolute';
+	});
+
+	// ✅ Tampilkan pesan dan hilang setelah 5 detik
+	const pesanGerak = document.getElementById("pesan-gerak");
+	pesanGerak.style.display = "block";
+	setTimeout(() => {
+		pesanGerak.style.display = "none";
+	}, 5000);
+});
+
+document.getElementById("cake_fadein").addEventListener("click", function () {
+	kue.style.display = "block";
+});
+
+// ✅ Ikan menghindar saat kursor mendekat
+document.addEventListener("mousemove", (e) => {
+	if (ikan.style.display !== "block") return;
+
+	const mouseX = e.clientX;
+	const mouseY = e.clientY;
+
+	const rect = ikan.getBoundingClientRect();
+	const ikanX = rect.left + rect.width / 2;
+	const ikanY = rect.top + rect.height / 2;
+
+	const dist = Math.hypot(mouseX - ikanX, mouseY - ikanY);
+
+	if (dist < 120) {
+		const offsetX = (ikanX - mouseX) * 2 + (Math.random() * 40 - 20);
+		const offsetY = (ikanY - mouseY) * 2 + (Math.random() * 40 - 20);
+
+		let newX = rect.left + offsetX;
+		let newY = rect.top + offsetY;
+
+		newX = Math.max(0, Math.min(window.innerWidth - rect.width, newX));
+		newY = Math.max(0, Math.min(window.innerHeight - rect.height, newY));
+
+		ikan.style.left = `${newX}px`;
+		ikan.style.top = `${newY}px`;
+	}
+});
+
+// ✅ Balon menghindar juga
+const balloons = document.querySelectorAll('.balloons');
+
+document.addEventListener('mousemove', (e) => {
+	const mouseX = e.clientX;
+	const mouseY = e.clientY;
+
+	balloons.forEach(balloon => {
+		const rect = balloon.getBoundingClientRect();
+		const balloonX = rect.left + rect.width / 2;
+		const balloonY = rect.top + rect.height / 2;
+
+		const dist = Math.hypot(mouseX - balloonX, mouseY - balloonY);
+
+		if (dist < 100) {
+			const offsetX = (balloonX - mouseX) * 3 + (Math.random() * 50 - 25);
+			const offsetY = (balloonY - mouseY) * 3 + (Math.random() * 50 - 25);
+
+			let newX = rect.left + offsetX;
+			let newY = rect.top + offsetY;
+
+			newX = Math.max(0, Math.min(window.innerWidth - rect.width, newX));
+			newY = Math.max(0, Math.min(window.innerHeight - rect.height, newY));
+
+			balloon.style.left = `${newX}px`;
+			balloon.style.top = `${newY}px`;
+		}
+	});
+});
+</script>
+
+
 </body>
 </html>
