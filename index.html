@@ -3,38 +3,52 @@
 <head>
   <title>Selamat Ulang Tahun :)</title>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="stylesheet.css">
   <link rel="stylesheet" type="text/css" href="loading.css">
   <link rel="stylesheet/less" href="cake.less">
   <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.1.0/less.min.js"></script>
-  <link href="http://fonts.googleapis.com/css?family=Signika" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Signika" rel="stylesheet">
+
   <style>
     body {
-      overflow-x: hidden;
       font-family: 'Signika', sans-serif;
+      overflow-x: hidden;
+      background-color: #000;
     }
 
     #ikan {
       display: none;
-      position: fixed;
-      bottom: 5vh;
+      position: absolute;
+      bottom: 30px;
       left: -150px;
-      width: 20vw;
-      max-width: 120px;
+      width: 120px;
+      animation: berenang 10s infinite linear;
+      transform: scaleX(1);
       transition: left 0.4s ease, top 0.4s ease;
-      z-index: 50;
-      cursor: grab;
+    }
+
+    @keyframes berenang {
+      0% { left: -150px; transform: scaleX(1); }
+      50% { left: 80%; transform: scaleX(-1); }
+      100% { left: -150px; transform: scaleX(1); }
+    }
+
+    .message {
+      font-size: 18px;
+      text-align: center;
+      margin-top: 30px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 15px;
+      border-radius: 12px;
     }
 
     .balloons {
-      position: fixed !important;
       transition: left 0.3s ease, top 0.3s ease;
       z-index: 10;
-      width: 10vw;
-      max-width: 50px;
-      cursor: grab;
+      position: absolute;
     }
 
     #pesan-gerak {
@@ -48,15 +62,20 @@
       padding: 12px 24px;
       border-radius: 16px;
       font-size: 16px;
+      font-family: 'Signika', sans-serif;
       z-index: 9999;
     }
   </style>
 </head>
+
 <body>
   <div class="loading"></div>
-  <audio id="suara-pop" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
 
-  <!-- Balon huruf -->
+  <audio class="song" controls loop>
+    <source src="hbd.mp3">
+    Your browser isn't invited for super fun audio time.
+  </audio>
+
   <div class="balloons text-center" id="b1"><h2 style="color:#F2B300;">H</h2></div>
   <div class="balloons text-center" id="b2"><h2 style="color:#0719D4;">A</h2></div>
   <div class="balloons text-center" id="b3"><h2 style="color:#D14D39;">U</h2></div>
@@ -65,93 +84,139 @@
   <div class="balloons text-center" id="b6"><h2 style="color:#99C96A;">2</h2></div>
   <div class="balloons text-center" id="b7"><h2 style="color:#20CFB4;">0</h2></div>
 
-  <img src="Balloon-Border.png" class="balloon-border">
+  <img src="Balloon-Border.png" width="100%" class="balloon-border">
   <img src="ikan.png" id="ikan" alt="Ikan Cupang Lucu">
 
   <div id="pesan-gerak">Balon dan ikannya ga bisaa di tangkep looo 😝 coba gerakkan ke ikan dan balonnya.....</div>
 
   <div class="container">
-    <!-- Tombol -->
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <img src="banner.png" class="bannar">
+      </div>
+    </div>
+
+    <div class="row cake-cover" id="kue" style="display:none;">
+      <div class="col-md-12 text-center">
+        <img src="cakebaru.png" alt="Kue Ulang Tahun" style="max-width:200px;">
+      </div>
+    </div>
+
+    <div class="row message">
+      <div class="col-md-12">
+        <p>Selamat ulang tahun urrr 🎉🎂 </p>
+        <p>Semoga sehat dan bahagia selalu..</p>
+        <p>semoga yang semoga tersemogakan..</p>
+        <p>semangat sil nya..</p>
+        <p>semangat semester 5 nya....</p>
+        <p>semangat di umur yg ke 20...</p>
+        <p>apa lagi yak.....</p>
+        <p>semangat terus intinya ur....</p>
+        <p>itu aja urr..maap alay....</p>
+        <p>happy birthday.......</p>
+        <p>Barakallahu fii umrik </p>
+        <p>dari dikbud.... </p>
+      </div>
+    </div>
+
     <div class="navbar navbar-fixed-bottom">
       <div class="row">
-        <div class="col-xs-12 text-center">
+        <div class="col-md-6 text-center col-md-offset-3">
           <button class="btn btn-primary" id="balloons_flying">kurang balonyyaa</button>
+          <button class="btn btn-primary" id="cake_fadein">kuee nyaaa manaaa</button>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
   <script>
+    window.addEventListener("load", function () {
+      const loading = document.querySelector(".loading");
+      if (loading) {
+        loading.style.transition = "opacity 0.5s ease";
+        loading.style.opacity = 0;
+        setTimeout(() => loading.style.display = "none", 500);
+      }
+    });
+
     const ikan = document.getElementById("ikan");
-    const suara = document.getElementById("suara-pop");
+    const kue = document.getElementById("kue");
 
-    function buatBisaDragDanSuara(elemen) {
-      let dragging = false, offsetX = 0, offsetY = 0;
-
-      elemen.addEventListener("mousedown", e => {
-        dragging = true;
-        offsetX = e.clientX - elemen.offsetLeft;
-        offsetY = e.clientY - elemen.offsetTop;
-        elemen.style.cursor = "grabbing";
-        suara.currentTime = 0;
-        suara.play();
-      });
-
-      document.addEventListener("mousemove", e => {
-        if (dragging) {
-          elemen.style.left = (e.clientX - offsetX) + "px";
-          elemen.style.top = (e.clientY - offsetY) + "px";
-        }
-      });
-
-      document.addEventListener("mouseup", () => {
-        dragging = false;
-        elemen.style.cursor = "grab";
-      });
-
-      elemen.addEventListener("touchstart", e => {
-        dragging = true;
-        const touch = e.touches[0];
-        offsetX = touch.clientX - elemen.offsetLeft;
-        offsetY = touch.clientY - elemen.offsetTop;
-        suara.currentTime = 0;
-        suara.play();
-      });
-
-      document.addEventListener("touchmove", e => {
-        if (dragging) {
-          const touch = e.touches[0];
-          elemen.style.left = (touch.clientX - offsetX) + "px";
-          elemen.style.top = (touch.clientY - offsetY) + "px";
-        }
-      });
-
-      document.addEventListener("touchend", () => {
-        dragging = false;
-      });
-    }
-
-    function gerakAcakTerus(elemen) {
-      setInterval(() => {
-        if (!elemen.dragging) {
-          const x = Math.random() * (window.innerWidth - elemen.offsetWidth);
-          const y = Math.random() * (window.innerHeight - elemen.offsetHeight);
-          elemen.style.left = `${x}px`;
-          elemen.style.top = `${y}px`;
-        }
-      }, 3000);
-    }
-
-    document.getElementById("balloons_flying").addEventListener("click", () => {
+    document.getElementById("balloons_flying").addEventListener("click", function () {
       ikan.style.display = "block";
-      buatBisaDragDanSuara(ikan);
-      gerakAcakTerus(ikan);
-      document.querySelectorAll('.balloons').forEach(balon => {
-        buatBisaDragDanSuara(balon);
-        gerakAcakTerus(balon);
+      ikan.style.left = `${window.innerWidth / 2}px`;
+      ikan.style.top = `${window.innerHeight - 100}px`;
+
+      document.querySelectorAll('.balloons').forEach(b => {
+        b.style.position = 'absolute';
       });
-      document.getElementById("pesan-gerak").style.display = "block";
-      setTimeout(() => document.getElementById("pesan-gerak").style.display = "none", 5000);
+
+      const pesanGerak = document.getElementById("pesan-gerak");
+      pesanGerak.style.display = "block";
+      setTimeout(() => {
+        pesanGerak.style.display = "none";
+      }, 5000);
+    });
+
+    document.getElementById("cake_fadein").addEventListener("click", function () {
+      kue.style.display = "block";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (ikan.style.display !== "block") return;
+
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+
+      const rect = ikan.getBoundingClientRect();
+      const ikanX = rect.left + rect.width / 2;
+      const ikanY = rect.top + rect.height / 2;
+
+      const dist = Math.hypot(mouseX - ikanX, mouseY - ikanY);
+
+      if (dist < 120) {
+        const offsetX = (ikanX - mouseX) * 2 + (Math.random() * 40 - 20);
+        const offsetY = (ikanY - mouseY) * 2 + (Math.random() * 40 - 20);
+
+        let newX = rect.left + offsetX;
+        let newY = rect.top + offsetY;
+
+        newX = Math.max(0, Math.min(window.innerWidth - rect.width, newX));
+        newY = Math.max(0, Math.min(window.innerHeight - rect.height, newY));
+
+        ikan.style.left = `${newX}px`;
+        ikan.style.top = `${newY}px`;
+      }
+    });
+
+    const balloons = document.querySelectorAll('.balloons');
+
+    document.addEventListener('mousemove', (e) => {
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+
+      balloons.forEach(balloon => {
+        const rect = balloon.getBoundingClientRect();
+        const balloonX = rect.left + rect.width / 2;
+        const balloonY = rect.top + rect.height / 2;
+
+        const dist = Math.hypot(mouseX - balloonX, mouseY - balloonY);
+
+        if (dist < 100) {
+          const offsetX = (balloonX - mouseX) * 3 + (Math.random() * 50 - 25);
+          const offsetY = (balloonY - mouseY) * 3 + (Math.random() * 50 - 25);
+
+          let newX = rect.left + offsetX;
+          let newY = rect.top + offsetY;
+
+          newX = Math.max(0, Math.min(window.innerWidth - rect.width, newX));
+          newY = Math.max(0, Math.min(window.innerHeight - rect.height, newY));
+
+          balloon.style.left = `${newX}px`;
+          balloon.style.top = `${newY}px`;
+        }
+      });
     });
   </script>
 </body>
