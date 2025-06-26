@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Interaktif Ikan & Balon</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ulang Tahun Interaktif</title>
   <style>
     body {
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background-color: #e0f7fa;
-      touch-action: none; /* mencegah zoom saat double tap */
+      background-color: #f0f8ff;
+      touch-action: none;
     }
 
     .objek {
@@ -32,91 +32,93 @@
 </head>
 <body>
 
-<!-- Elemen gambar -->
-<img id="ikan" class="objek" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Fish_icon.png" style="top: 50%; left: 40%;">
-<img id="balon" class="objek" src="https://upload.wikimedia.org/wikipedia/commons/2/29/Red_balloon_icon.png" style="top: 70%; left: 20%;">
+<!-- Objek Ikan dan Balon -->
+<img id="ikan" class="objek" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Fish_icon.png" style="top: 40%; left: 30%;">
+<img id="balon" class="objek" src="https://upload.wikimedia.org/wikipedia/commons/2/29/Red_balloon_icon.png" style="top: 60%; left: 50%;">
 
-<!-- Suara dari GitHub -->
-<audio id="suara-pop" src="https://raw.githubusercontent.com/dikbud2703/ultahhaura.github.io/main/sounds/pop.mp3" preload="auto"></audio>
+<!-- Suara dari SoundJay (no upload needed!) -->
+<audio id="suara-pop" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
 
 <script>
-  function gerakAcak(objek) {
-    setInterval(() => {
-      if (!objek.dragging) {
-        const layarLebar = window.innerWidth;
-        const layarTinggi = window.innerHeight;
-        const x = Math.random() * (layarLebar - objek.offsetWidth);
-        const y = Math.random() * (layarTinggi - objek.offsetHeight);
-        objek.style.left = x + "px";
-        objek.style.top = y + "px";
-      }
-    }, 2500);
-  }
+  window.onload = function () {
+    function gerakAcak(objek) {
+      const padding = 10;
+      setInterval(() => {
+        if (!objek.dragging) {
+          const layarLebar = window.innerWidth;
+          const layarTinggi = window.innerHeight;
+          const x = Math.random() * (layarLebar - objek.offsetWidth - padding * 2) + padding;
+          const y = Math.random() * (layarTinggi - objek.offsetHeight - padding * 2) + padding;
+          objek.style.left = x + "px";
+          objek.style.top = y + "px";
+        }
+      }, 2500);
+    }
 
-  function buatBisaDrag(objek) {
-    objek.dragging = false;
-    let offsetX, offsetY;
-
-    // Untuk desktop
-    objek.addEventListener("mousedown", function(e) {
-      objek.dragging = true;
-      offsetX = e.clientX - objek.offsetLeft;
-      offsetY = e.clientY - objek.offsetTop;
-      objek.style.cursor = "grabbing";
-    });
-
-    document.addEventListener("mousemove", function(e) {
-      if (objek.dragging) {
-        objek.style.left = (e.clientX - offsetX) + "px";
-        objek.style.top = (e.clientY - offsetY) + "px";
-      }
-    });
-
-    document.addEventListener("mouseup", function() {
+    function buatBisaDrag(objek) {
       objek.dragging = false;
-      objek.style.cursor = "grab";
-    });
+      let offsetX, offsetY;
 
-    // Untuk sentuhan (HP)
-    objek.addEventListener("touchstart", function(e) {
-      objek.dragging = true;
-      const touch = e.touches[0];
-      offsetX = touch.clientX - objek.offsetLeft;
-      offsetY = touch.clientY - objek.offsetTop;
-    });
+      // Mouse
+      objek.addEventListener("mousedown", function (e) {
+        objek.dragging = true;
+        offsetX = e.clientX - objek.offsetLeft;
+        offsetY = e.clientY - objek.offsetTop;
+        objek.style.cursor = "grabbing";
+      });
 
-    document.addEventListener("touchmove", function(e) {
-      if (objek.dragging) {
+      document.addEventListener("mousemove", function (e) {
+        if (objek.dragging) {
+          objek.style.left = (e.clientX - offsetX) + "px";
+          objek.style.top = (e.clientY - offsetY) + "px";
+        }
+      });
+
+      document.addEventListener("mouseup", function () {
+        objek.dragging = false;
+        objek.style.cursor = "grab";
+      });
+
+      // Touch
+      objek.addEventListener("touchstart", function (e) {
+        objek.dragging = true;
         const touch = e.touches[0];
-        objek.style.left = (touch.clientX - offsetX) + "px";
-        objek.style.top = (touch.clientY - offsetY) + "px";
-      }
-    });
+        offsetX = touch.clientX - objek.offsetLeft;
+        offsetY = touch.clientY - objek.offsetTop;
+      });
 
-    document.addEventListener("touchend", function() {
-      objek.dragging = false;
-    });
-  }
+      document.addEventListener("touchmove", function (e) {
+        if (objek.dragging) {
+          const touch = e.touches[0];
+          objek.style.left = (touch.clientX - offsetX) + "px";
+          objek.style.top = (touch.clientY - offsetY) + "px";
+        }
+      });
 
-  // Ambil semua elemen
-  const ikan = document.getElementById("ikan");
-  const balon = document.getElementById("balon");
-  const suara = document.getElementById("suara-pop");
+      document.addEventListener("touchend", function () {
+        objek.dragging = false;
+      });
+    }
 
-  [ikan, balon].forEach(objek => {
-    buatBisaDrag(objek);
-    gerakAcak(objek);
-    objek.addEventListener("click", () => {
-      suara.currentTime = 0;
-      suara.play();
-    });
+    const ikan = document.getElementById("ikan");
+    const balon = document.getElementById("balon");
+    const suara = document.getElementById("suara-pop");
 
-    // Buat juga bisa bunyi saat disentuh di HP
-    objek.addEventListener("touchstart", () => {
-      suara.currentTime = 0;
-      suara.play();
+    [ikan, balon].forEach(objek => {
+      buatBisaDrag(objek);
+      gerakAcak(objek);
+
+      objek.addEventListener("click", () => {
+        suara.currentTime = 0;
+        suara.play();
+      });
+
+      objek.addEventListener("touchstart", () => {
+        suara.currentTime = 0;
+        suara.play();
+      });
     });
-  });
+  };
 </script>
 
 </body>
